@@ -1,2 +1,1 @@
-# btplda
-Bayesian Teaching for Probabilistic Linear Discriminant Analysis
+# Bayesian Teaching for Probabilistic Linear Discriminant Analysis
