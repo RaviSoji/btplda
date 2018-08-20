@@ -14,7 +14,9 @@ def calc_n_batches(N, set_size, n_sets, batch_size):
     if batch_size is None:
         batch_size = n_sets
 
-    return int(np.ceil(n_sets / batch_size)), total_sets
+    n_batches = int(np.ceil(n_sets / batch_size))
+
+    return n_batches, total_sets
 
 
 def generate_batches(sets, batch_size, n_batches, total_sets):
@@ -46,8 +48,11 @@ class MeanTeacher:
     def generate_teaching_sets(self, v, set_size,
                                n_sets=None, batch_size=None,
                                sequential_sampling=None):
-        """ Returns a zip object. """
-        assert set_size > 0
+        """
+        Returns a zip object if you want batches.
+        Assumes you want teaching sets composed of different data.
+        """
+        assert set_size > 0 and type(set_size) == int
         assert sequential_sampling is None or \
                sequential_sampling == 'ascending' or \
                sequential_sampling == 'descending'
@@ -69,14 +74,14 @@ class MeanTeacher:
         n_batches, \
         total_sets = calc_n_batches(self.N, set_size, n_sets, batch_size)
 
-        if n_sets is not None:
-            batch_size = min(batch_size, n_sets)
-
         if batch_size is None and n_sets is None:
             return list(sets)
-    
+
         elif batch_size is None and n_sets is not None:
             return list(islice(sets, n_sets))
+
+        elif n_sets is not None:
+            batch_size = min(batch_size, n_sets)
 
         elif batch_size == n_sets:
             return list(sets)
@@ -111,6 +116,10 @@ class MeanTeacher:
 
         return logpdf(posterior_means)
 
+
+    def calc_logp_marginal_likelihood(self, logps_likelihood_times_prior):
+        return logsumexp(logps_likelihood_times_prior, axis=-1)
+
     def calc_logp_prior(self, v, teaching_sets, prior_type='uniform'):
         if prior_type is 'uniform':
             return 0  # Uniform Prior.
@@ -118,12 +127,9 @@ class MeanTeacher:
         else:
             raise NotImplementedError
 
-    def calc_logp_marginal_likelihood(self, logps_likelihood_times_prior):
-        return logsumexp(logps_likelihood_times_prior, axis=-1)
-
     def score_teaching_sets(self, v, teaching_sets, prior='uniform'):
+        """ Note could return positive valies because of Gaussian DENSITIES. """
         assert v.shape == self.data[0].shape
-        assert type(norm_logps) == bool
 
         return self.calc_logp_likelihood(v, teaching_sets) + \
                self.calc_logp_prior(v, teaching_sets, prior)

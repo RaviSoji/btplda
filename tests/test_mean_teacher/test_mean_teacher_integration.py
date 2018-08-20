@@ -6,9 +6,9 @@ from numpy.testing import assert_array_equal
 from scipy.special import comb, logsumexp
 from scipy.stats import multivariate_normal as gaussian
 
-from .category_mean_teacher_fixtures import teacher, test_args
-from .category_mean_teacher_fixtures import classifier_and_latent_data
-from .category_mean_teacher_fixtures import data_dictionary
+from .mean_teacher_fixtures import teacher, test_args
+from .mean_teacher_fixtures import classifier_and_latent_data
+from .mean_teacher_fixtures import data_dictionary
 
 
 def test_score_teaching_sets(teacher, test_args):
