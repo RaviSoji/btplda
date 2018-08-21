@@ -2,7 +2,8 @@ import numpy as np
 
 from .prediction_teacher import PredictionTeacher
 
-def highlight(D, plda_classifier, set_size=1):
+
+def highlight(D, plda_classifier, set_size=1, return_filter=False):
     """ set_size is the number of features that can be used. """
     prediction, logp_prediction = plda_classifier.predict(D)
     target_model = plda_classifier.model
@@ -19,4 +20,8 @@ def highlight(D, plda_classifier, set_size=1):
     data_filter = teacher.build_filter(best_ts)
     highlighted = teacher.apply_filter(D, data_filter)
 
-    return highlighted
+    if return_filter:
+        return highlighted, data_filter
+
+    else:
+        return highlighted
