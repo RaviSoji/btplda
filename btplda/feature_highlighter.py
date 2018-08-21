@@ -1,4 +1,6 @@
-from .prediction_teacher import PredcitionTeacher
+import numpy as np
+
+from .prediction_teacher import PredictionTeacher
 
 def highlight(D, plda_classifier, set_size=1):
     """ set_size is the number of features that can be used. """
@@ -6,13 +8,15 @@ def highlight(D, plda_classifier, set_size=1):
     target_model = plda_classifier.model
 
     u_model = target_model.transform(D, from_space='D', to_space='U_model')
+    u_model = np.squeeze(u_model)
+
     teacher = PredictionTeacher(u_model, target_model)
 
     ts = teacher.gen_teaching_sets(set_size)
     logps = teacher.calc_logp_likelihood(k=prediction, teaching_sets=ts)
     
     best_ts = ts[np.argmax(logps)]
-    img_filter = teacher.build_filter(best_ts)
-    highlighted = teacher.apply_filter(img, img_filter)
+    data_filter = teacher.build_filter(best_ts)
+    highlighted = teacher.apply_filter(D, data_filter)
 
     return highlighted
